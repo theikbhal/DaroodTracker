@@ -7,7 +7,7 @@ struct OnboardingView: View {
     @EnvironmentObject var profile: ProfileManager
     @State private var currentPage = 0
     @State private var userName = ""
-    @State private var showMainApp = false
+    @Binding var showOnboarding: Bool
     
     let pages: [(title: String, subtitle: String, icon: String)] = [
         ("Welcome to Darood Tracker", "Track your daily darood with ease", "star.fill"),
@@ -18,78 +18,65 @@ struct OnboardingView: View {
     ]
     
     var body: some View {
-        if showMainApp {
-            ContentView()
-                .environmentObject(store)
-                .environmentObject(experiments)
-                .environmentObject(theme)
-                .environmentObject(profile)
-        } else {
-            VStack(spacing: 30) {
-                // Progress dots
-                HStack(spacing: 8) {
-                    ForEach(0..<pages.count, id: \.self) { index in
-                        Circle()
-                            .fill(index == currentPage ? theme.currentTheme.accentColor : Color.gray.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                    }
+        VStack(spacing: 30) {
+            // Progress dots
+            HStack(spacing: 8) {
+                ForEach(0..<pages.count, id: \.self) { index in
+                    Circle()
+                        .fill(index == currentPage ? theme.currentTheme.accentColor : Color.gray.opacity(0.3))
+                        .frame(width: 8, height: 8)
                 }
-                .padding(.top, 20)
-                
-                // Page content
-                TabView(selection: $currentPage) {
-                    // Page 1: Welcome
-                    WelcomePage()
-                        .tag(0)
-                    
-                    // Page 2: Target
-                    TargetPage()
-                        .tag(1)
-                    
-                    // Page 3: Progress
-                    ProgressPage()
-                        .tag(2)
-                    
-                    // Page 4: Reminders
-                    ReminderPage()
-                        .tag(3)
-                    
-                    // Page 5: Name
-                    NamePage(userName: $userName)
-                        .tag(4)
-                }
-                .tabViewStyle(.automatic)
-                
-                // Navigation buttons
-                HStack {
-                    if currentPage > 0 {
-                        Button("Back") {
-                            withAnimation {
-                                currentPage -= 1
-                            }
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(currentPage == pages.count - 1 ? "Get Started" : "Next") {
-                        if currentPage == pages.count - 1 {
-                            completeOnboarding()
-                        } else {
-                            withAnimation {
-                                currentPage += 1
-                            }
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(theme.currentTheme.accentColor)
-                }
-                .padding(.horizontal, 40)
-                .padding(.bottom, 30)
             }
-            .frame(width: 500, height: 400)
+            .padding(.top, 20)
+            
+            // Page content
+            TabView(selection: $currentPage) {
+                WelcomePage()
+                    .tag(0)
+                
+                TargetPage()
+                    .tag(1)
+                
+                ProgressPage()
+                    .tag(2)
+                
+                ReminderPage()
+                    .tag(3)
+                
+                NamePage(userName: $userName)
+                    .tag(4)
+            }
+            .tabViewStyle(.automatic)
+            
+            // Navigation buttons
+            HStack {
+                if currentPage > 0 {
+                    Button("Back") {
+                        withAnimation {
+                            currentPage -= 1
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                }
+                
+                Spacer()
+                
+                Button(currentPage == pages.count - 1 ? "Get Started" : "Next") {
+                    if currentPage == pages.count - 1 {
+                        completeOnboarding()
+                    } else {
+                        withAnimation {
+                            currentPage += 1
+                        }
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(theme.currentTheme.accentColor)
+            }
+            .padding(.horizontal, 40)
+            .padding(.bottom, 30)
         }
+        .frame(width: 500, height: 400)
     }
     
     func completeOnboarding() {
@@ -97,7 +84,7 @@ struct OnboardingView: View {
             profile.setName(userName)
         }
         experiments.set("onboarding", enabled: false)
-        showMainApp = true
+        showOnboarding = false
         SoundManager.shared.play(.welcome)
     }
 }

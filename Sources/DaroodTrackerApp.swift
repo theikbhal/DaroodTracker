@@ -26,7 +26,7 @@ struct DaroodTrackerApp: App {
     }
 }
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     var statusItem: NSStatusItem?
     var popover = NSPopover()
     var eventMonitor: Any?
@@ -34,7 +34,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupMenuBar()
         setupEventMonitor()
-        scheduleDailyReminder()
+        requestNotificationPermission()
     }
     
     func setupMenuBar() {
@@ -66,37 +66,90 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    func scheduleDailyReminder() {
+    // MARK: - Notifications
+    
+    func requestNotificationPermission() {
         let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+        center.delegate = self
+        
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if granted {
-                self.setupNotification()
+                DispatchQueue.main.async {
+                    self.scheduleDailyReminder()
+                }
+            }
+            if let error = error {
+                print("Notification permission error: \(error)")
             }
         }
     }
     
-    func setupNotification() {
+    func scheduleDailyReminder() {
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
         
-        let content = UNMutableNotificationContent()
-        content.title = "Darood Tracker"
-        content.body = "Time for your daily darood! Don't break your streak."
-        content.sound = .default
+        // Morning reminder
+        let morningContent = UNMutableNotificationContent()
+        morningContent.title = "Darood Tracker"
+        morningContent.body = "Start your day with darood! You have 1100 to complete today."
+        morningContent.sound = .default
+        morningContent.badge = 1
         
-        var components = DateComponents()
-        components.hour = 9
-        components.minute = 0
+        var morningComponents = DateComponents()
+        morningComponents.hour = 8
+        morningComponents.minute = 0
         
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        let morningTrigger = UNCalendarNotificationTrigger(dateMatching: morningComponents, repeats: true)
+        let morningRequest = UNNotificationRequest(identifier: "morning_reminder", content: morningContent, trigger: morningTrigger)
+        center.add(morningRequest)
         
-        let request = UNNotificationRequest(
-            identifier: "daily_reminder",
-            content: content,
-            trigger: trigger
-        )
+        // Afternoon reminder
+        let afternoonContent = UNMutableNotificationContent()
+        afternoonContent.title = "Darood Tracker - Afternoon"
+        afternoonContent.body = "Don't forget to complete your darood before 6 PM!"
+        afternoonContent.sound = .default
+        afternoonContent.badge = 1
         
-        center.add(request)
+        var afternoonComponents = DateComponents()
+        afternoonComponents.hour = 14
+        afternoonComponents.minute = 0
+        
+        let afternoonTrigger = UNCalendarNotificationTrigger(dateMatching: afternoonComponents, repeats: true)
+        let afternoonRequest = UNNotificationRequest(identifier: "afternoon_reminder", content: afternoonContent, trigger: afternoonTrigger)
+        center.add(afternoonRequest)
+        
+        // Evening deadline reminder
+        let eveningContent = UNMutableNotificationContent()
+        eveningContent.title = "Darood Tracker - Deadline"
+        eveningContent.body = "Only 2 hours left! Complete your darood before 6 PM."
+        eveningContent.sound = .default
+        eveningContent.badge = 1
+        
+        var eveningComponents = DateComponents()
+        eveningComponents.hour = 16
+        eveningComponents.minute = 0
+        
+        let eveningTrigger = UNCalendarNotificationTrigger(dateMatching: eveningComponents, repeats: true)
+        let eveningRequest = UNNotificationRequest(identifier: "evening_reminder", content: eveningContent, trigger: eveningTrigger)
+        center.add(eveningRequest)
+    }
+    
+    func cancelAllReminders() {
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+    }
+    
+    // MARK: - UNUserNotificationCenterDelegate
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        // Open the app when notification is tapped
+        if let button = statusItem?.button {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        }
+        completionHandler()
     }
     
     @objc func togglePopover() {

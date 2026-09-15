@@ -11,8 +11,8 @@ struct ContentView: View {
     
     var body: some View {
         Group {
-            if experiments.isEnabled("onboarding") {
-                OnboardingView()
+            if showOnboarding {
+                OnboardingView(showOnboarding: $showOnboarding)
                     .environmentObject(store)
                     .environmentObject(experiments)
                     .environmentObject(theme)
@@ -22,9 +22,7 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            if experiments.isEnabled("onboarding") {
-                showOnboarding = true
-            }
+            showOnboarding = experiments.isEnabled("onboarding")
         }
     }
     
