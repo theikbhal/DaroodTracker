@@ -2,8 +2,15 @@ import SwiftUI
 
 struct MenuBarView: View {
     @EnvironmentObject var store: DaroodStore
+    @EnvironmentObject var experiments: ExperimentsManager
+    @EnvironmentObject var theme: ThemeManager
+    @EnvironmentObject var profile: ProfileManager
+    @EnvironmentObject var subGoals: SubGoalManager
     @State private var showCalendar = false
     @State private var showSettings = false
+    @State private var showHelp = false
+    @State private var showProfile = false
+    @State private var showSubGoals = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -18,10 +25,33 @@ struct MenuBarView: View {
             
             // Quick Actions
             HStack(spacing: 12) {
+                if experiments.isEnabled("subgoals") {
+                    Button(action: { showSubGoals = true }) {
+                        Label("Subgoals", systemImage: "target")
+                    }
+                    .buttonStyle(.bordered)
+                }
+                
                 Button(action: { showCalendar = true }) {
                     Label("Calendar", systemImage: "calendar")
                 }
                 .buttonStyle(.bordered)
+            }
+            
+            HStack(spacing: 12) {
+                if experiments.isEnabled("profile") {
+                    Button(action: { showProfile = true }) {
+                        Label("Profile", systemImage: "person.circle")
+                    }
+                    .buttonStyle(.bordered)
+                }
+                
+                if experiments.isEnabled("help") {
+                    Button(action: { showHelp = true }) {
+                        Label("Help", systemImage: "questionmark.circle")
+                    }
+                    .buttonStyle(.bordered)
+                }
                 
                 Button(action: { showSettings = true }) {
                     Label("Settings", systemImage: "gear")
@@ -30,17 +60,40 @@ struct MenuBarView: View {
             }
             
             // Streak Info
-            StreakView()
+            if experiments.isEnabled("streaks") {
+                StreakView()
+            }
         }
         .padding()
-        .frame(width: 300)
+        .frame(width: 320)
         .sheet(isPresented: $showCalendar) {
             CalendarView()
                 .environmentObject(store)
+                .environmentObject(theme)
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
                 .environmentObject(store)
+                .environmentObject(experiments)
+                .environmentObject(theme)
+                .environmentObject(profile)
+        }
+        .sheet(isPresented: $showHelp) {
+            HelpView()
+                .environmentObject(theme)
+        }
+        .sheet(isPresented: $showProfile) {
+            ProfileView()
+                .environmentObject(store)
+                .environmentObject(profile)
+                .environmentObject(theme)
+        }
+        .sheet(isPresented: $showSubGoals) {
+            SubGoalsView()
+                .environmentObject(store)
+                .environmentObject(subGoals)
+                .environmentObject(theme)
+                .environmentObject(experiments)
         }
     }
 }
@@ -49,11 +102,17 @@ struct MenuBarView: View {
 
 struct HeaderView: View {
     @EnvironmentObject var store: DaroodStore
+    @EnvironmentObject var profile: ProfileManager
     
     var body: some View {
         VStack(spacing: 4) {
-            Text("Darood Tracker")
-                .font(.headline)
+            HStack {
+                Text(profile.profile.avatarEmoji)
+                    .font(.title2)
+                
+                Text("Darood Tracker")
+                    .font(.headline)
+            }
             
             Text(Date(), style: .date)
                 .font(.caption)
@@ -66,6 +125,7 @@ struct HeaderView: View {
 
 struct ProgressRingView: View {
     @EnvironmentObject var store: DaroodStore
+    @EnvironmentObject var theme: ThemeManager
     
     var body: some View {
         ZStack {
@@ -78,7 +138,7 @@ struct ProgressRingView: View {
                 .trim(from: 0, to: store.todayProgress)
                 .stroke(
                     LinearGradient(
-                        gradient: Gradient(colors: [.blue, .purple]),
+                        gradient: Gradient(colors: theme.currentTheme.progressGradient),
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
@@ -109,6 +169,8 @@ struct ProgressRingView: View {
 
 struct BatchButtonsView: View {
     @EnvironmentObject var store: DaroodStore
+    @EnvironmentObject var theme: ThemeManager
+    @EnvironmentObject var experiments: ExperimentsManager
     
     var body: some View {
         VStack(spacing: 8) {
@@ -127,6 +189,8 @@ struct BatchButtonsView: View {
 
 struct BatchButton: View {
     @EnvironmentObject var store: DaroodStore
+    @EnvironmentObject var theme: ThemeManager
+    @EnvironmentObject var experiments: ExperimentsManager
     let batch: Int
     
     var isCompleted: Bool {
@@ -137,6 +201,12 @@ struct BatchButton: View {
         Button(action: {
             if !isCompleted {
                 store.addCount(100)
+                SoundManager.shared.play(.batchComplete)
+                SoundManager.shared.playHaptic()
+                
+                if store.completedBatches == batch {
+                    CelebrationManager.shared.celebrateBatch(batch)
+                }
             }
         }) {
             VStack(spacing: 2) {
@@ -145,12 +215,12 @@ struct BatchButton: View {
                 Text("100")
                     .font(.caption2)
             }
-            .frame(width: 55, height: 40)
-            .background(isCompleted ? Color.green.opacity(0.3) : Color.blue.opacity(0.1))
+            .frame(width: 60, height: 40)
+            .background(isCompleted ? Color.green.opacity(0.3) : theme.currentTheme.accentColor.opacity(0.1))
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isCompleted ? Color.green : Color.blue, lineWidth: 1)
+                    .stroke(isCompleted ? .green : theme.currentTheme.accentColor, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

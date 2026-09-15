@@ -2,12 +2,58 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var store: DaroodStore
+    @EnvironmentObject var experiments: ExperimentsManager
+    @EnvironmentObject var theme: ThemeManager
+    @EnvironmentObject var profile: ProfileManager
+    @EnvironmentObject var subGoals: SubGoalManager
     @State private var showSettings = false
+    @State private var showOnboarding = false
     
     var body: some View {
+        Group {
+            if experiments.isEnabled("onboarding") {
+                OnboardingView()
+                    .environmentObject(store)
+                    .environmentObject(experiments)
+                    .environmentObject(theme)
+                    .environmentObject(profile)
+            } else {
+                mainContent
+            }
+        }
+        .onAppear {
+            if experiments.isEnabled("onboarding") {
+                showOnboarding = true
+            }
+        }
+    }
+    
+    var mainContent: some View {
         VStack(spacing: 24) {
             // Header
-            HeaderView()
+            HStack {
+                Text(profile.profile.avatarEmoji)
+                    .font(.largeTitle)
+                
+                VStack(alignment: .leading) {
+                    Text("Welcome, \(profile.profile.name)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text(Date(), style: .date)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                if experiments.isEnabled("profile") {
+                    Button(action: { showSettings = true }) {
+                        Image(systemName: "gear")
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
             
             // Large Progress Ring
             ZStack {
@@ -18,7 +64,7 @@ struct ContentView: View {
                     .trim(from: 0, to: store.todayProgress)
                     .stroke(
                         LinearGradient(
-                            gradient: Gradient(colors: [.blue, .purple, .pink]),
+                            gradient: Gradient(colors: theme.currentTheme.progressGradient),
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -57,24 +103,35 @@ struct ContentView: View {
             
             // Quick Add
             HStack(spacing: 12) {
-                Button(action: { store.addCount(1) }) {
+                Button(action: { 
+                    store.addCount(1)
+                    SoundManager.shared.play(.tick)
+                }) {
                     Label("+1", systemImage: "plus.circle")
                 }
                 .buttonStyle(.bordered)
                 
-                Button(action: { store.addCount(10) }) {
+                Button(action: { 
+                    store.addCount(10)
+                    SoundManager.shared.play(.tick)
+                }) {
                     Label("+10", systemImage: "plus.circle.fill")
                 }
                 .buttonStyle(.bordered)
                 
-                Button(action: { store.addCount(50) }) {
+                Button(action: { 
+                    store.addCount(50)
+                    SoundManager.shared.play(.tick)
+                }) {
                     Label("+50", systemImage: "plus.circle.fill")
                 }
                 .buttonStyle(.bordered)
             }
             
             // Streak Info
-            StreakView()
+            if experiments.isEnabled("streaks") {
+                StreakView()
+            }
             
             // Settings Button
             Button(action: { showSettings = true }) {
@@ -87,12 +144,16 @@ struct ContentView: View {
         .sheet(isPresented: $showSettings) {
             SettingsView()
                 .environmentObject(store)
+                .environmentObject(experiments)
+                .environmentObject(theme)
+                .environmentObject(profile)
         }
     }
 }
 
 struct LargeBatchButton: View {
     @EnvironmentObject var store: DaroodStore
+    @EnvironmentObject var theme: ThemeManager
     let batch: Int
     
     var isCompleted: Bool {
@@ -103,6 +164,12 @@ struct LargeBatchButton: View {
         Button(action: {
             if !isCompleted {
                 store.addCount(100)
+                SoundManager.shared.play(.batchComplete)
+                SoundManager.shared.playHaptic()
+                
+                if store.completedBatches == batch {
+                    CelebrationManager.shared.celebrateBatch(batch)
+                }
             }
         }) {
             VStack(spacing: 4) {
@@ -112,11 +179,11 @@ struct LargeBatchButton: View {
                     .font(.caption)
             }
             .frame(width: 70, height: 50)
-            .background(isCompleted ? Color.green.opacity(0.3) : Color.blue.opacity(0.1))
+            .background(isCompleted ? Color.green.opacity(0.3) : theme.currentTheme.accentColor.opacity(0.1))
             .cornerRadius(10)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isCompleted ? Color.green : Color.blue, lineWidth: 2)
+                    .stroke(isCompleted ? .green : theme.currentTheme.accentColor, lineWidth: 2)
             )
         }
         .buttonStyle(.plain)
