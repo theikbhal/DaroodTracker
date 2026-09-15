@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @EnvironmentObject var store: DaroodStore
@@ -12,9 +13,17 @@ struct SettingsView: View {
     @AppStorage("showInDock") private var showInDock = false
     
     @State private var selectedTab = "general"
+    @State private var showResetConfirm = false
+    @State private var resetType: ResetType = .today
+    @State private var showExportSheet = false
     
     private let hourRange = 0...23
     private let minuteRange = 0...59
+    
+    enum ResetType: String {
+        case today = "Today"
+        case all = "All Data"
+    }
     
     var body: some View {
         VStack(spacing: 16) {
@@ -59,12 +68,32 @@ struct SettingsView: View {
             }
         }
         .padding()
-        .frame(width: 400, height: 500)
+        .frame(width: 420, height: 520)
+        .alert("Reset \(resetType.rawValue)?", isPresented: $showResetConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Reset", role: .destructive) {
+                switch resetType {
+                case .today:
+                    store.resetToday()
+                case .all:
+                    store.resetAll()
+                }
+            }
+        } message: {
+            if resetType == .all {
+                Text("This cannot be undone. All your darood records will be permanently deleted.")
+            } else {
+                Text("This will reset today's count to zero.")
+            }
+        }
+        .sheet(isPresented: $showExportSheet) {
+            ExportSheet()
+                .environmentObject(store)
+        }
     }
     
     var generalSettings: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Reminder Settings
             GroupBox("Reminders") {
                 VStack(alignment: .leading, spacing: 12) {
                     Toggle("Enable Daily Reminder", isOn: $reminderEnabled)
@@ -93,7 +122,6 @@ struct SettingsView: View {
                 .padding(.vertical, 8)
             }
             
-            // Appearance
             GroupBox("Appearance") {
                 VStack(alignment: .leading, spacing: 12) {
                     Toggle("Show in Dock", isOn: $showInDock)
@@ -164,7 +192,16 @@ struct SettingsView: View {
             GroupBox("Reset") {
                 VStack(alignment: .leading, spacing: 12) {
                     Button("Reset Today's Count") {
-                        store.resetToday()
+                        resetType = .today
+                        showResetConfirm = true
+                    }
+                    .foregroundColor(.orange)
+                    
+                    Divider()
+                    
+                    Button("Reset All Data") {
+                        resetType = .all
+                        showResetConfirm = true
                     }
                     .foregroundColor(.red)
                 }
@@ -172,11 +209,16 @@ struct SettingsView: View {
             }
             
             // Export
-            GroupBox("Export") {
+            GroupBox("Export Data") {
                 VStack(alignment: .leading, spacing: 12) {
-                    Button("Export Data") {
-                        exportData()
+                    Text("Export your tracking data in various formats")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Button(action: { showExportSheet = true }) {
+                        Label("Export...", systemImage: "square.and.arrow.up")
                     }
+                    .buttonStyle(.borderedProminent)
                 }
                 .padding(.vertical, 8)
             }
@@ -185,9 +227,33 @@ struct SettingsView: View {
             GroupBox("Statistics") {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("Total Records:")
+                        Text("Total Days Tracked:")
                         Spacer()
                         Text("\(store.records.count)")
+                    }
+                    
+                    HStack {
+                        Text("Total Darood:")
+                        Spacer()
+                        Text("\(store.records.values.reduce(0) { $0 + $1.totalCount })")
+                    }
+                    
+                    HStack {
+                        Text("Days Completed:")
+                        Spacer()
+                        Text("\(store.records.values.filter { $0.isComplete }.count)")
+                    }
+                    
+                    HStack {
+                        Text("Current Streak:")
+                        Spacer()
+                        Text("\(store.currentStreak) days")
+                    }
+                    
+                    HStack {
+                        Text("Longest Streak:")
+                        Spacer()
+                        Text("\(store.longestStreak) days")
                     }
                     
                     HStack {
@@ -208,23 +274,143 @@ struct SettingsView: View {
             NSApp.setActivationPolicy(.accessory)
         }
     }
+}
+
+// MARK: - Export Sheet
+
+struct ExportSheet: View {
+    @EnvironmentObject var store: DaroodStore
+    @Environment(\.dismiss) var dismiss
     
-    func exportData() {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
+    enum ExportFormat: String, CaseIterable, Identifiable {
+        case json = "JSON"
+        case csv = "CSV"
+        case markdown = "Markdown"
+        case sql = "SQL"
         
-        if let data = try? encoder.encode(store.records),
-           let json = String(data: data, encoding: .utf8) {
-            let panel = NSSavePanel()
-            panel.allowedContentTypes = [.json]
-            panel.nameFieldStringValue = "darood_tracker_export.json"
-            
-            panel.begin { result in
-                if result == .OK, let url = panel.url {
-                    try? json.write(to: url, atomically: true, encoding: .utf8)
-                }
+        var id: String { rawValue }
+        
+        var icon: String {
+            switch self {
+            case .json: return "doc.text"
+            case .csv: return "tablecells"
+            case .markdown: return "doc.richtext"
+            case .sql: return "externaldrive"
             }
         }
+        
+        var description: String {
+            switch self {
+            case .json: return "Structured data, easy to import"
+            case .csv: return "Spreadsheet compatible"
+            case .markdown: return "Formatted for reading"
+            case .sql: return "Database with schema"
+            }
+        }
+        
+        var fileExtension: String {
+            switch self {
+            case .json: return "json"
+            case .csv: return "csv"
+            case .markdown: return "md"
+            case .sql: return "sql"
+            }
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text("Export Data")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                }
+            }
+            
+            Divider()
+            
+            Text("Choose a format to export your darood tracking data")
+                .font(.callout)
+                .foregroundColor(.secondary)
+            
+            VStack(spacing: 12) {
+                ForEach(ExportFormat.allCases) { format in
+                    ExportFormatCard(format: format) {
+                        export(format: format)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .frame(width: 400, height: 450)
+    }
+    
+    func export(format: ExportFormat) {
+        let content: String
+        
+        switch format {
+        case .json:
+            content = store.exportJSON() ?? "{}"
+        case .csv:
+            content = store.exportCSV()
+        case .markdown:
+            content = store.exportMarkdown()
+        case .sql:
+            content = store.exportSQL()
+        }
+        
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.init(filenameExtension: format.fileExtension) ?? .plainText]
+        panel.nameFieldStringValue = "darood_tracker.\(format.fileExtension)"
+        
+        panel.begin { result in
+            if result == .OK, let url = panel.url {
+                try? content.write(to: url, atomically: true, encoding: .utf8)
+                dismiss()
+            }
+        }
+    }
+}
+
+struct ExportFormatCard: View {
+    let format: ExportSheet.ExportFormat
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: format.icon)
+                    .font(.title2)
+                    .foregroundColor(.accentColor)
+                    .frame(width: 30)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(format.rawValue)
+                        .font(.headline)
+                    
+                    Text(format.description)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "square.and.arrow.up")
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(10)
+        }
+        .buttonStyle(.plain)
     }
 }
 
