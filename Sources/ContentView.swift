@@ -13,6 +13,7 @@ struct ContentView: View {
     
     enum AppTab: String, CaseIterable {
         case home = "Home"
+        case easy = "Easy"
         case focus = "Focus"
         case splitBatches = "Split"
         case fingers = "Fingers"
@@ -53,6 +54,12 @@ struct ContentView: View {
             switch selectedTab {
             case .home:
                 HomeView(selectedTab: $selectedTab)
+            case .easy:
+                EasyCountView()
+                    .environmentObject(store)
+                    .environmentObject(theme)
+                    .environmentObject(focusManager)
+                    .environmentObject(experiments)
             case .focus:
                 FocusModeView()
                     .environmentObject(store)
@@ -111,6 +118,7 @@ struct ContentView: View {
     func iconFor(_ tab: AppTab) -> String {
         switch tab {
         case .home: return "house.fill"
+        case .easy: return "hand.tap.fill"
         case .focus: return "brain.head.profile"
         case .splitBatches: return "square.split.2x2"
         case .fingers: return "hand.raised.fill"

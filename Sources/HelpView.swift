@@ -36,6 +36,15 @@ struct HelpView: View {
                     }
                     
                     HelpSectionCard(
+                        icon: "hand.tap.fill",
+                        title: "Easy Count Mode",
+                        description: "Big +1 button for eyes-closed counting",
+                        color: .pink
+                    ) {
+                        selectedSection = .easyCount
+                    }
+                    
+                    HelpSectionCard(
                         icon: "brain.head.profile",
                         title: "Focus Mode",
                         description: "Timer, micro-breaks, and idle detection",
@@ -138,6 +147,7 @@ struct HelpView: View {
 
 enum HelpSection: String, CaseIterable, Identifiable {
     case gettingStarted
+    case easyCount
     case focusMode
     case splitBatches
     case fingerCounting
@@ -154,6 +164,7 @@ enum HelpSection: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .gettingStarted: return "Getting Started"
+        case .easyCount: return "Easy Count Mode"
         case .focusMode: return "Focus Mode"
         case .splitBatches: return "Split Batches (33/33/34)"
         case .fingerCounting: return "Finger Counting"
@@ -245,6 +256,8 @@ struct HelpDetailView: View {
         switch section {
         case .gettingStarted:
             gettingStartedContent
+        case .easyCount:
+            easyCountContent
         case .focusMode:
             focusModeContent
         case .splitBatches:
@@ -275,6 +288,26 @@ struct HelpDetailView: View {
             HelpTip(title: "3. Track Progress", content: "Watch the circular progress ring fill up as you complete your daily target")
             HelpTip(title: "4. View Calendar", content: "Click 'Calendar' to see your daily, weekly, monthly, and yearly progress")
             HelpTip(title: "5. Stay Consistent", content: "Build streaks by completing your target every day before 6 PM")
+        }
+    }
+    
+    var easyCountContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What is Easy Count Mode?", content: "A big +1 button that's easy to click even with eyes closed")
+            
+            HelpTip(title: "When to Use", content: "Perfect for when you're using a mouse and want to count without looking at the screen")
+            
+            HelpTip(title: "How it Works", content: "A large circular button takes up most of the screen. Just click anywhere on it to add +1")
+            
+            HelpTip(title: "Visual Feedback", content: "The button pulses when clicked and shows the current count in big numbers")
+            
+            HelpTip(title: "Quick Actions", content: "Use +10 and +100 buttons at the bottom for larger increments")
+            
+            HelpTip(title: "Audio Feedback", content: "Each click plays a sound (if Button Sounds is enabled in Settings)")
+            
+            HelpTip(title: "Haptic Feedback", content: "You'll feel a vibration on each click for physical confirmation")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Easy Count Mode")
         }
     }
     
