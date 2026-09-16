@@ -35,6 +35,11 @@ if [ -d "Resources" ]; then
     cp -R Resources/* "${RESOURCES_DIR}/"
 fi
 
+# Copy Assets.xcassets if it exists
+if [ -d "Sources/Assets.xcassets" ]; then
+    cp -R Sources/Assets.xcassets "${RESOURCES_DIR}/"
+fi
+
 # Make executable
 chmod +x "${MACOS_DIR}/${APP_NAME}"
 
