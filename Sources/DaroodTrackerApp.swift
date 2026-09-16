@@ -95,6 +95,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 if window.windowController?.contentViewController != nil {
                     return
                 }
+                // Don't close if clicking on floating button (level is floating)
+                if window.level == .floating {
+                    return
+                }
             }
             
             popover.performClose(nil)

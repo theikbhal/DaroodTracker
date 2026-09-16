@@ -48,6 +48,14 @@ struct MenuBarView: View {
                     Image(systemName: "gear")
                         .font(.caption)
                 }
+                
+                // Floating button toggle
+                Button(action: {
+                    FloatingWindowManager.shared.toggleFloatingButton()
+                }) {
+                    Image(systemName: "cursorarrow.motionlines")
+                        .font(.caption)
+                }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
             }

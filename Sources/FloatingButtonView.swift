@@ -444,6 +444,8 @@ class FloatingWindowManager: ObservableObject {
     private var floatingWindow: NSWindow?
     
     func showFloatingButton() {
+        print("FloatingWindowManager: Showing floating button")
+        
         if floatingWindow == nil {
             createFloatingWindow()
         }
@@ -451,10 +453,13 @@ class FloatingWindowManager: ObservableObject {
         DispatchQueue.main.async {
             self.floatingWindow?.orderFront(nil)
             self.isFloatingButtonVisible = true
+            print("FloatingWindowManager: Window shown at level \(self.floatingWindow?.level.rawValue ?? 0)")
         }
     }
     
     func hideFloatingButton() {
+        print("FloatingWindowManager: Hiding floating button")
+        
         DispatchQueue.main.async {
             self.floatingWindow?.orderOut(nil)
             self.isFloatingButtonVisible = false
@@ -470,8 +475,15 @@ class FloatingWindowManager: ObservableObject {
     }
     
     private func createFloatingWindow() {
+        print("FloatingWindowManager: Creating floating window")
+        
+        // Get screen bounds to position in center
+        let screenFrame = NSScreen.main?.visibleFrame ?? NSRect(x: 100, y: 100, width: 800, height: 600)
+        let windowX = screenFrame.midX - 70
+        let windowY = screenFrame.midY - 120
+        
         let window = NSWindow(
-            contentRect: NSRect(x: 100, y: 100, width: 140, height: 240),
+            contentRect: NSRect(x: windowX, y: windowY, width: 140, height: 240),
             styleMask: [.borderless],
             backing: .buffered,
             defer: false
@@ -482,6 +494,7 @@ class FloatingWindowManager: ObservableObject {
         window.level = .floating
         window.hasShadow = true
         window.isMovableByWindowBackground = true
+        window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         
         let store = DaroodStore()
         let theme = ThemeManager()
@@ -495,5 +508,7 @@ class FloatingWindowManager: ObservableObject {
         window.contentView = NSHostingView(rootView: contentView)
         
         self.floatingWindow = window
+        
+        print("FloatingWindowManager: Window created")
     }
 }

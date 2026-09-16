@@ -26,6 +26,7 @@ struct SettingsView: View {
     @AppStorage("morningReminderEnabled") private var morningReminderEnabled = true
     @AppStorage("deadlineReminderEnabled") private var deadlineReminderEnabled = true
     @AppStorage("idleReminderEnabled") private var idleReminderEnabled = true
+    @AppStorage("showFloatingButton") private var showFloatingButton = false
     
     @State private var selectedTab = "focus"
     @State private var showResetConfirm = false
@@ -258,13 +259,27 @@ struct SettingsView: View {
             
             GroupBox("Floating Button") {
                 VStack(alignment: .leading, spacing: 12) {
-                    Toggle("Enable Floating Button", isOn: Binding(
-                        get: { FloatingWindowManager.shared.isFloatingButtonVisible },
-                        set: { _ in FloatingWindowManager.shared.toggleFloatingButton() }
-                    ))
+                    Toggle("Show Floating Button", isOn: $showFloatingButton)
+                        .onChange(of: showFloatingButton) { _, newValue in
+                            if newValue {
+                                FloatingWindowManager.shared.showFloatingButton()
+                            } else {
+                                FloatingWindowManager.shared.hideFloatingButton()
+                            }
+                        }
                     
-                    if FloatingWindowManager.shared.isFloatingButtonVisible {
-                        Text("Drag to move, click +1 to count")
+                    if showFloatingButton {
+                        Text("✓ Floating button is now visible on screen")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                        
+                        Text("• Drag to move anywhere")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("• Click +1 to count darood")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("• Click X to close")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
