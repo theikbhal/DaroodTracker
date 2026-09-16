@@ -1,7 +1,7 @@
 import Foundation
 import AppKit
 
-// Create icon sizes for macOS
+// Better icon - Star with crescent, modern design
 let sizes: [(String, Int)] = [
     ("icon_16x16", 16),
     ("icon_16x16@2x", 32),
@@ -25,34 +25,49 @@ func createIcon(size: Int) -> NSImage {
     }
     
     let s = Double(size)
+    let padding = s * 0.05
+    let rect = CGRect(x: padding, y: padding, width: s - padding*2, height: s - padding*2)
     
-    // Background - rounded rectangle with gradient
-    let rect = CGRect(x: 0, y: 0, width: s, height: s)
+    // Background - rounded rectangle
     let cornerRadius = s * 0.22
-    
-    // Draw background
-    let path = CGPath(roundedRect: rect, cornerWidth: cornerRadius, cornerHeight: cornerRadius, transform: nil)
-    context.addPath(path)
+    let bgPath = CGPath(roundedRect: rect, cornerWidth: cornerRadius, cornerHeight: cornerRadius, transform: nil)
+    context.addPath(bgPath)
     context.clip()
     
-    // Gradient background - deep blue to purple
+    // Gradient background - deep navy to purple
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     let colors = [
-        CGColor(red: 0.1, green: 0.1, blue: 0.3, alpha: 1.0),
-        CGColor(red: 0.3, green: 0.1, blue: 0.5, alpha: 1.0),
+        CGColor(red: 0.05, green: 0.05, blue: 0.2, alpha: 1.0),
+        CGColor(red: 0.2, green: 0.05, blue: 0.4, alpha: 1.0),
     ] as CFArray
     let locations: [CGFloat] = [0.0, 1.0]
     if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: locations) {
         context.drawLinearGradient(gradient, start: CGPoint(x: 0, y: s), end: CGPoint(x: s, y: 0), options: [])
     }
     
-    // Draw star
-    let starCenter = CGPoint(x: s * 0.5, y: s * 0.55)
-    let starRadius = s * 0.25
-    let innerRadius = s * 0.1
+    // Draw crescent moon (Islamic symbol) - top right
+    let moonCenter = CGPoint(x: s * 0.7, y: s * 0.7)
+    let moonRadius = s * 0.15
     
     context.setFillColor(CGColor(red: 1.0, green: 0.85, blue: 0.2, alpha: 1.0))
+    let moonPath = CGMutablePath()
+    moonPath.addArc(center: moonCenter, radius: moonRadius, startAngle: 0, endAngle: .pi * 2, clockwise: false)
+    context.addPath(moonPath)
+    context.fillPath()
     
+    // Cut out inner circle for crescent
+    context.setFillColor(CGColor(red: 0.05, green: 0.05, blue: 0.2, alpha: 1.0))
+    let innerMoonPath = CGMutablePath()
+    innerMoonPath.addArc(center: CGPoint(x: moonCenter.x + moonRadius * 0.3, y: moonCenter.y), radius: moonRadius * 0.8, startAngle: 0, endAngle: .pi * 2, clockwise: false)
+    context.addPath(innerMoonPath)
+    context.fillPath()
+    
+    // Draw star - center left
+    let starCenter = CGPoint(x: s * 0.35, y: s * 0.55)
+    let starRadius = s * 0.18
+    let innerRadius = s * 0.08
+    
+    context.setFillColor(CGColor(red: 1.0, green: 0.85, blue: 0.2, alpha: 1.0))
     let starPath = CGMutablePath()
     for i in 0..<10 {
         let angle = Double(i) * .pi / 5 - .pi / 2
@@ -71,79 +86,42 @@ func createIcon(size: Int) -> NSImage {
     context.addPath(starPath)
     context.fillPath()
     
-    // Draw crescent moon
-    let moonCenter = CGPoint(x: s * 0.5, y: s * 0.55)
-    let moonRadius = s * 0.3
-    let moonOffset = s * 0.08
+    // Draw beads (tasbih) - curved line
+    context.setStrokeColor(CGColor(red: 1.0, green: 0.85, blue: 0.2, alpha: 0.8))
+    context.setLineWidth(s * 0.02)
     
-    context.setFillColor(CGColor(red: 1.0, green: 0.85, blue: 0.2, alpha: 1.0))
-    
-    let moonPath = CGMutablePath()
-    moonPath.addArc(center: moonCenter, radius: moonRadius, startAngle: 0, endAngle: .pi * 2, clockwise: false)
-    context.addPath(moonPath)
-    context.fillPath()
-    
-    context.setFillColor(CGColor(red: 0.1, green: 0.1, blue: 0.3, alpha: 1.0))
-    let innerMoonPath = CGMutablePath()
-    innerMoonPath.addArc(center: CGPoint(x: moonCenter.x + moonOffset, y: moonCenter.y), radius: moonRadius * 0.85, startAngle: 0, endAngle: .pi * 2, clockwise: false)
-    context.addPath(innerMoonPath)
-    context.fillPath()
-    
-    // Draw hand silhouette
-    let handCenter = CGPoint(x: s * 0.5, y: s * 0.3)
-    let handWidth = s * 0.4
-    let handHeight = s * 0.25
-    
-    context.setFillColor(CGColor(red: 1.0, green: 0.95, blue: 0.9, alpha: 0.3))
-    
-    let palmRect = CGRect(
-        x: handCenter.x - handWidth/2,
-        y: handCenter.y - handHeight/2,
-        width: handWidth,
-        height: handHeight
-    )
-    let palmPath = CGPath(roundedRect: palmRect, cornerWidth: handWidth * 0.3, cornerHeight: handWidth * 0.3, transform: nil)
-    context.addPath(palmPath)
-    context.fillPath()
-    
-    let fingerWidth = handWidth * 0.15
-    let fingerHeight = handHeight * 0.6
-    let fingerSpacing = handWidth * 0.05
-    
-    for i in 0..<5 {
-        let fingerX = palmRect.minX + (Double(i) * (fingerWidth + fingerSpacing))
-        let fingerRect = CGRect(
-            x: fingerX,
-            y: palmRect.maxY - fingerHeight * 0.3,
-            width: fingerWidth,
-            height: fingerHeight
-        )
-        let fingerPath = CGPath(roundedRect: fingerRect, cornerWidth: fingerWidth * 0.4, cornerHeight: fingerWidth * 0.4, transform: nil)
-        context.addPath(fingerPath)
+    let beadCount = 11
+    let beadRadius = s * 0.015
+    for i in 0..<beadCount {
+        let t = Double(i) / Double(beadCount - 1)
+        let angle = .pi * 0.3 + t * .pi * 0.4
+        let radius = s * 0.32
+        let x = s * 0.5 + radius * cos(angle)
+        let y = s * 0.35 + radius * sin(angle) * 0.5
+        
+        context.setFillColor(CGColor(red: 1.0, green: 0.85, blue: 0.2, alpha: 0.9))
+        let beadPath = CGMutablePath()
+        beadPath.addArc(center: CGPoint(x: x, y: y), radius: beadRadius, startAngle: 0, endAngle: .pi * 2, clockwise: false)
+        context.addPath(beadPath)
         context.fillPath()
     }
     
-    // Draw progress ring
-    let ringCenter = CGPoint(x: s * 0.5, y: s * 0.55)
-    let ringRadius = s * 0.38
-    let ringWidth = s * 0.04
+    // Draw + symbol - bottom center
+    context.setStrokeColor(CGColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.9))
+    context.setLineWidth(s * 0.03)
+    context.setLineCap(.round)
     
-    context.setStrokeColor(CGColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.3))
-    context.setLineWidth(ringWidth)
-    context.strokeEllipse(in: CGRect(
-        x: ringCenter.x - ringRadius,
-        y: ringCenter.y - ringRadius,
-        width: ringRadius * 2,
-        height: ringRadius * 2
-    ))
+    let plusCenter = CGPoint(x: s * 0.5, y: s * 0.25)
+    let plusSize = s * 0.08
     
-    // Progress arc (75% complete)
-    context.setStrokeColor(CGColor(red: 0.3, green: 0.9, blue: 0.5, alpha: 1.0))
-    context.setLineWidth(ringWidth)
+    // Horizontal line
+    context.move(to: CGPoint(x: plusCenter.x - plusSize, y: plusCenter.y))
+    context.addLine(to: CGPoint(x: plusCenter.x + plusSize, y: plusCenter.y))
+    context.strokePath()
     
-    let startAngle: CGFloat = .pi / 2
-    let endAngle: CGFloat = .pi / 2 + .pi * 1.5
-    context.addArc(center: ringCenter, radius: ringRadius, startAngle: startAngle, endAngle: endAngle, clockwise: false)
+    // Vertical line
+    context.move(to: CGPoint(x: plusCenter.x, y: plusCenter.y - plusSize))
+    context.addLine(to: CGPoint(x: plusCenter.x, y: plusCenter.y + plusSize))
     context.strokePath()
     
     image.unlockFocus()
@@ -151,7 +129,7 @@ func createIcon(size: Int) -> NSImage {
 }
 
 // Generate and save icons
-let outputDir = "/Users/ikbhal/Desktop/mac_apps/DaroodTracker/Assets.xcassets/AppIcon.appiconset"
+let outputDir = "/Users/ikbhal/Desktop/mac_apps/DaroodTracker/Sources/Assets.xcassets/AppIcon.appiconset"
 
 for (name, size) in sizes {
     let icon = createIcon(size: size)
