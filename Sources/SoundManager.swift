@@ -15,6 +15,11 @@ class SoundManager: ObservableObject {
         case congrats = "congrats"
         case tick = "tick"
         case pop = "pop"
+        case count1 = "count1"
+        case count3 = "count3"
+        case count5 = "count5"
+        case count15 = "count15"
+        case count33 = "count33"
     }
     
     init() {}
@@ -43,6 +48,16 @@ class SoundManager: ObservableObject {
             frequency = 1000; duration = 0.02; volume = 0.15
         case .pop:
             frequency = 600; duration = 0.06; volume = 0.2
+        case .count1:
+            frequency = 523.25; duration = 0.05; volume = 0.2  // C5 - soft click
+        case .count3:
+            frequency = 659.25; duration = 0.08; volume = 0.25  // E5 - medium
+        case .count5:
+            frequency = 783.99; duration = 0.1; volume = 0.3  // G5 - bright
+        case .count15:
+            frequency = 880; duration = 0.12; volume = 0.3  // A5 - hand complete
+        case .count33:
+            frequency = 1046.50; duration = 0.15; volume = 0.35  // C6 - sub-goal complete
         }
         
         playTone(frequency: frequency, duration: duration, volume: volume)

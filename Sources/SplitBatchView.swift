@@ -248,7 +248,14 @@ struct BatchSplitCard: View {
         } else {
             store.addCount(count)
         }
-        SoundManager.shared.play(.batchComplete)
+        
+        // Play sound based on count size
+        if experiments.isEnabled("buttonSounds") {
+            switch count {
+            case 33: SoundManager.shared.play(.count33)
+            default: SoundManager.shared.play(.batchComplete)
+            }
+        }
         SoundManager.shared.playHaptic()
     }
 }

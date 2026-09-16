@@ -124,7 +124,16 @@ struct FingerCountView: View {
         } else {
             store.addCount(count)
         }
-        SoundManager.shared.play(.tick)
+        
+        // Play sound based on count size
+        if experiments.isEnabled("buttonSounds") {
+            switch count {
+            case 1: SoundManager.shared.play(.count1)
+            case 5: SoundManager.shared.play(.count5)
+            case 10: SoundManager.shared.play(.count15)
+            default: SoundManager.shared.play(.tick)
+            }
+        }
     }
 }
 

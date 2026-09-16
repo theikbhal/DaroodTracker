@@ -115,7 +115,18 @@ struct SegmentCountView: View {
         } else {
             store.addCount(count)
         }
-        SoundManager.shared.play(.tick)
+        
+        // Play sound based on count size
+        if experiments.isEnabled("buttonSounds") {
+            switch count {
+            case 1: SoundManager.shared.play(.count1)
+            case 3: SoundManager.shared.play(.count3)
+            case 5: SoundManager.shared.play(.count5)
+            case 15: SoundManager.shared.play(.count15)
+            case 33, 34: SoundManager.shared.play(.count33)
+            default: SoundManager.shared.play(.tick)
+            }
+        }
     }
 }
 
@@ -629,6 +640,17 @@ struct QuickAddButtons: View {
         } else {
             store.addCount(count)
         }
-        SoundManager.shared.play(.tick)
+        
+        // Play sound based on count size
+        if experiments.isEnabled("buttonSounds") {
+            switch count {
+            case 1: SoundManager.shared.play(.count1)
+            case 3: SoundManager.shared.play(.count3)
+            case 5: SoundManager.shared.play(.count5)
+            case 15: SoundManager.shared.play(.count15)
+            case 33, 34: SoundManager.shared.play(.count33)
+            default: SoundManager.shared.play(.tick)
+            }
+        }
     }
 }
