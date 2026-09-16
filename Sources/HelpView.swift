@@ -54,6 +54,15 @@ struct HelpView: View {
                     }
                     
                     HelpSectionCard(
+                        icon: "cursorarrow.motionlines",
+                        title: "Floating Button",
+                        description: "Floating +1 button for quick counting",
+                        color: .blue
+                    ) {
+                        selectedSection = .floatingButton
+                    }
+                    
+                    HelpSectionCard(
                         icon: "brain.head.profile",
                         title: "Focus Mode",
                         description: "Timer, micro-breaks, and idle detection",
@@ -158,6 +167,7 @@ enum HelpSection: String, CaseIterable, Identifiable {
     case gettingStarted
     case easyCount
     case islandGarden
+    case floatingButton
     case focusMode
     case splitBatches
     case fingerCounting
@@ -176,6 +186,7 @@ enum HelpSection: String, CaseIterable, Identifiable {
         case .gettingStarted: return "Getting Started"
         case .easyCount: return "Easy Count Mode"
         case .islandGarden: return "Island Garden Game"
+        case .floatingButton: return "Floating Button"
         case .focusMode: return "Focus Mode"
         case .splitBatches: return "Split Batches (33/33/34)"
         case .fingerCounting: return "Finger Counting"
@@ -271,6 +282,8 @@ struct HelpDetailView: View {
             easyCountContent
         case .islandGarden:
             islandGardenContent
+        case .floatingButton:
+            floatingButtonContent
         case .focusMode:
             focusModeContent
         case .splitBatches:
@@ -351,6 +364,32 @@ struct HelpDetailView: View {
             HelpTip(title: "Sound Effects", content: "Special sounds play when you reach new stages")
             
             HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Island Garden Game")
+        }
+    }
+    
+    var floatingButtonContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What is Floating Button?", content: "A floating +1 button that stays on top of all windows")
+            
+            HelpTip(title: "When to Use", content: "Perfect for counting while using other apps or with eyes closed")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Startup > Enable Floating Button")
+            
+            HelpTip(title: "How to Move", content: "Drag the floating button anywhere on your screen")
+            
+            HelpTip(title: "How to Count", content: "Click the big +1 button to count darood")
+            
+            HelpTip(title: "How to Close", content: "Click the X button in the top right corner")
+            
+            HelpTip(title: "4 Visual Styles", content: "Choose from 3D Modern, 1980 Retro, 1990 Retro, or 2000s Games")
+            
+            HelpTip(title: "Style Selector", content: "Click the small icons at the top to change the button style")
+            
+            HelpTip(title: "Audio Feedback", content: "Each click plays a sound (if Button Sounds is enabled)")
+            
+            HelpTip(title: "Haptic Feedback", content: "You'll feel a vibration on each click")
+            
+            HelpTip(title: "Stays on Top", content: "The button always stays on top of other windows")
         }
     }
     

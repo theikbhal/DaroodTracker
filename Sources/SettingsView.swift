@@ -256,6 +256,22 @@ struct SettingsView: View {
                 .padding(.vertical, 8)
             }
             
+            GroupBox("Floating Button") {
+                VStack(alignment: .leading, spacing: 12) {
+                    Toggle("Enable Floating Button", isOn: Binding(
+                        get: { FloatingWindowManager.shared.isFloatingButtonVisible },
+                        set: { _ in FloatingWindowManager.shared.toggleFloatingButton() }
+                    ))
+                    
+                    if FloatingWindowManager.shared.isFloatingButtonVisible {
+                        Text("Drag to move, click +1 to count")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.vertical, 8)
+            }
+            
             GroupBox("Notifications Permission") {
                 VStack(alignment: .leading, spacing: 12) {
                     Button("Request Notification Permission") {
