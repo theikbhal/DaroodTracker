@@ -9,6 +9,13 @@ struct DaroodTrackerApp: App {
     @StateObject private var theme = ThemeManager()
     @StateObject private var profile = ProfileManager.shared
     @StateObject private var subGoals = SubGoalManager.shared
+    @StateObject private var focusManager: FocusSessionManager
+    
+    init() {
+        let store = DaroodStore()
+        _store = StateObject(wrappedValue: store)
+        _focusManager = StateObject(wrappedValue: FocusSessionManager(store: store))
+    }
     
     var body: some Scene {
         WindowGroup {
@@ -18,11 +25,19 @@ struct DaroodTrackerApp: App {
                 .environmentObject(theme)
                 .environmentObject(profile)
                 .environmentObject(subGoals)
+                .environmentObject(focusManager)
                 .preferredColorScheme(theme.currentTheme == .dark ? .dark : theme.currentTheme == .light ? .light : nil)
+                .onAppear {
+                    setupAdaptiveNotifications()
+                }
         }
-        .windowStyle(.hiddenTitleBar)
+        .windowStyle(.automatic)
         .windowResizability(.contentSize)
-        .defaultSize(width: 320, height: 480)
+        .defaultSize(width: 800, height: 600)
+    }
+    
+    private func setupAdaptiveNotifications() {
+        AdaptiveNotificationEngine.shared.setupNotifications()
     }
 }
 
@@ -47,12 +62,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             button.target = self
         }
         
+        let store = DaroodStore()
         let contentView = MenuBarView()
-            .environmentObject(DaroodStore())
+            .environmentObject(store)
             .environmentObject(ExperimentsManager.shared)
             .environmentObject(ThemeManager())
             .environmentObject(ProfileManager.shared)
             .environmentObject(SubGoalManager.shared)
+            .environmentObject(FocusSessionManager(store: store))
         
         popover.contentViewController = NSHostingController(rootView: contentView)
         popover.behavior = .transient
@@ -75,67 +92,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if granted {
                 DispatchQueue.main.async {
-                    self.scheduleDailyReminder()
+                    AdaptiveNotificationEngine.shared.setupNotifications()
                 }
             }
             if let error = error {
                 print("Notification permission error: \(error)")
             }
         }
-    }
-    
-    func scheduleDailyReminder() {
-        let center = UNUserNotificationCenter.current()
-        center.removeAllPendingNotificationRequests()
-        
-        // Morning reminder
-        let morningContent = UNMutableNotificationContent()
-        morningContent.title = "Darood Tracker"
-        morningContent.body = "Start your day with darood! You have 1100 to complete today."
-        morningContent.sound = .default
-        morningContent.badge = 1
-        
-        var morningComponents = DateComponents()
-        morningComponents.hour = 8
-        morningComponents.minute = 0
-        
-        let morningTrigger = UNCalendarNotificationTrigger(dateMatching: morningComponents, repeats: true)
-        let morningRequest = UNNotificationRequest(identifier: "morning_reminder", content: morningContent, trigger: morningTrigger)
-        center.add(morningRequest)
-        
-        // Afternoon reminder
-        let afternoonContent = UNMutableNotificationContent()
-        afternoonContent.title = "Darood Tracker - Afternoon"
-        afternoonContent.body = "Don't forget to complete your darood before 6 PM!"
-        afternoonContent.sound = .default
-        afternoonContent.badge = 1
-        
-        var afternoonComponents = DateComponents()
-        afternoonComponents.hour = 14
-        afternoonComponents.minute = 0
-        
-        let afternoonTrigger = UNCalendarNotificationTrigger(dateMatching: afternoonComponents, repeats: true)
-        let afternoonRequest = UNNotificationRequest(identifier: "afternoon_reminder", content: afternoonContent, trigger: afternoonTrigger)
-        center.add(afternoonRequest)
-        
-        // Evening deadline reminder
-        let eveningContent = UNMutableNotificationContent()
-        eveningContent.title = "Darood Tracker - Deadline"
-        eveningContent.body = "Only 2 hours left! Complete your darood before 6 PM."
-        eveningContent.sound = .default
-        eveningContent.badge = 1
-        
-        var eveningComponents = DateComponents()
-        eveningComponents.hour = 16
-        eveningComponents.minute = 0
-        
-        let eveningTrigger = UNCalendarNotificationTrigger(dateMatching: eveningComponents, repeats: true)
-        let eveningRequest = UNNotificationRequest(identifier: "evening_reminder", content: eveningContent, trigger: eveningTrigger)
-        center.add(eveningRequest)
-    }
-    
-    func cancelAllReminders() {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
     
     // MARK: - UNUserNotificationCenterDelegate
@@ -145,7 +108,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        // Open the app when notification is tapped
         if let button = statusItem?.button {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         }

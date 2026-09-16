@@ -10,6 +10,7 @@ class ExperimentsManager: ObservableObject {
     
     // All available experiments
     let availableExperiments: [Experiment] = [
+        // Core
         Experiment(id: "onboarding", name: "Onboarding Flow", description: "Show welcome screens on first launch", defaultEnabled: true),
         Experiment(id: "themes", name: "Themes", description: "Enable multiple color themes", defaultEnabled: true),
         Experiment(id: "sounds", name: "Sound Effects", description: "Play sounds on count and achievements", defaultEnabled: true),
@@ -20,6 +21,12 @@ class ExperimentsManager: ObservableObject {
         Experiment(id: "haptics", name: "Haptic Feedback", description: "Vibrate on interactions", defaultEnabled: true),
         Experiment(id: "streaks", name: "Streak Tracking", description: "Track consecutive days", defaultEnabled: true),
         Experiment(id: "weekly_report", name: "Weekly Report", description: "Show weekly summary", defaultEnabled: true),
+        // ADHD Focus Features
+        Experiment(id: "focusMode", name: "Focus Mode Timer", description: "Session timer with pace tracking and progress", defaultEnabled: true),
+        Experiment(id: "adaptiveNotifications", name: "Smart Notifications", description: "Progress-aware adaptive reminders", defaultEnabled: true),
+        Experiment(id: "microBreaks", name: "Micro-Break System", description: "10-second breaks after every 10 darood", defaultEnabled: true),
+        Experiment(id: "launchAtLogin", name: "Launch at Login", description: "Auto-start app on computer restart", defaultEnabled: false),
+        Experiment(id: "idleDetection", name: "Idle Detection", description: "Detect when you stop counting", defaultEnabled: true),
     ]
     
     init() {
