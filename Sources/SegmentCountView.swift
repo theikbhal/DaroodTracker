@@ -69,25 +69,11 @@ struct SegmentCountView: View {
                 .cornerRadius(15)
                 
                 // Quick add buttons
-                HStack(spacing: 10) {
-                    Button(action: { addCount(1) }) {
-                        Label("+1", systemImage: "hand.point.right")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    Button(action: { addCount(15) }) {
-                        Label("+15", systemImage: "hand.raised")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    Button(action: { addCount(33) }) {
-                        Label("+33", systemImage: "hand.thumbsup")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                }
+                QuickAddButtons()
+                    .environmentObject(store)
+                    .environmentObject(theme)
+                    .environmentObject(focusManager)
+                    .environmentObject(experiments)
                 
                 // Sub-goal progress
                 SubGoalProgressView()
@@ -173,6 +159,10 @@ struct CurrentSubGoalCard: View {
         Double(countInSubGoal) / Double(subGoalTarget)
     }
     
+    var remainingSegments: Int {
+        subGoalTarget - countInSubGoal
+    }
+    
     var body: some View {
         VStack(spacing: 8) {
             HStack {
@@ -190,6 +180,22 @@ struct CurrentSubGoalCard: View {
             // Sub-goal progress bar
             ProgressView(value: subGoalProgress)
                 .tint(theme.currentTheme.accentColor)
+            
+            // Remaining segments indicator
+            if remainingSegments > 0 && remainingSegments <= 5 {
+                HStack {
+                    Image(systemName: "arrow.right.circle.fill")
+                        .foregroundColor(.orange)
+                    Text("\(remainingSegments) more to complete sub-goal \(currentSubGoal)")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                    Spacer()
+                    Text("33/33/34")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.top, 4)
+            }
             
             // Sub-goal labels
             HStack {
@@ -267,22 +273,38 @@ struct SegmentHand: View {
                 // Fingers
                 HStack(spacing: 8) {
                     ForEach(0..<5, id: \.self) { finger in
-                        FingerWithSegments(fingerNumber: finger, segmentsFilled: fingerSegments(for: finger))
+                        FingerWithSegments(fingerNumber: finger, segmentsFilled: fingerSegments(for: finger), isNext: finger == nextFingerIndex)
                             .environmentObject(theme)
                     }
                 }
             }
             
-            // Count indicator
-            Text("\(segmentsFilled) / 15")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            // Count indicator with remaining
+            HStack(spacing: 4) {
+                Text("\(segmentsFilled) / 15")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                if remainingInHand > 0 && remainingInHand <= 5 {
+                    Text("( \(remainingInHand) left )")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                }
+            }
         }
     }
     
     private func fingerSegments(for finger: Int) -> Int {
         let start = finger * 3
         return max(0, min(3, segmentsFilled - start))
+    }
+    
+    var nextFingerIndex: Int {
+        segmentsFilled / 3
+    }
+    
+    var remainingInHand: Int {
+        15 - segmentsFilled
     }
 }
 
@@ -293,6 +315,7 @@ struct FingerWithSegments: View {
     
     let fingerNumber: Int
     let segmentsFilled: Int
+    var isNext: Bool = false
     
     var body: some View {
         VStack(spacing: 2) {
@@ -305,6 +328,7 @@ struct FingerWithSegments: View {
                         .font(.system(size: 8))
                         .foregroundColor(segmentsFilled >= 3 ? .white : .gray)
                 )
+                .border(isNext && segmentsFilled < 3 ? Color.orange : Color.clear, width: 2)
             
             // Segment 2 (middle)
             SegmentBlock()
@@ -315,6 +339,7 @@ struct FingerWithSegments: View {
                         .font(.system(size: 8))
                         .foregroundColor(segmentsFilled >= 2 ? .white : .gray)
                 )
+                .border(isNext && segmentsFilled < 2 ? Color.orange : Color.clear, width: 2)
             
             // Segment 1 (base)
             SegmentBlock()
@@ -325,6 +350,7 @@ struct FingerWithSegments: View {
                         .font(.system(size: 8))
                         .foregroundColor(segmentsFilled >= 1 ? .white : .gray)
                 )
+                .border(isNext && segmentsFilled < 1 ? Color.orange : Color.clear, width: 2)
             
             // Finger number
             Text("\(fingerNumber + 1)")
@@ -513,5 +539,96 @@ struct SegmentBatchCard: View {
             RoundedRectangle(cornerRadius: 6)
                 .stroke(isCurrentBatch ? theme.currentTheme.accentColor.opacity(0.5) : Color.gray.opacity(0.2), lineWidth: 1)
         )
+    }
+}
+
+// MARK: - Quick Add Buttons
+
+struct QuickAddButtons: View {
+    @EnvironmentObject var store: DaroodStore
+    @EnvironmentObject var theme: ThemeManager
+    @EnvironmentObject var focusManager: FocusSessionManager
+    @EnvironmentObject var experiments: ExperimentsManager
+    
+    var countInBatch: Int {
+        store.todayTotalCount % 100
+    }
+    
+    var currentSubGoal: Int {
+        if countInBatch < 33 { return 1 }
+        else if countInBatch < 66 { return 2 }
+        else { return 3 }
+    }
+    
+    var countInSubGoal: Int {
+        switch currentSubGoal {
+        case 1: return countInBatch
+        case 2: return countInBatch - 33
+        case 3: return countInBatch - 66
+        default: return 0
+        }
+    }
+    
+    var remainingInSubGoal: Int {
+        let target = currentSubGoal == 3 ? 34 : 33
+        return target - countInSubGoal
+    }
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            // Row 1: +1, +3, +5
+            HStack(spacing: 10) {
+                Button(action: { addCount(1) }) {
+                    Label("+1", systemImage: "hand.point.right")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                
+                Button(action: { addCount(3) }) {
+                    Label("+3", systemImage: "hand.raised.fingers.spread")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                
+                Button(action: { addCount(5) }) {
+                    Label("+5", systemImage: "hand.raised")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+            
+            // Row 2: +15 (hand), +remaining (smart), +33/34 (sub-goal)
+            HStack(spacing: 10) {
+                Button(action: { addCount(15) }) {
+                    Label("+15", systemImage: "hand.thumbsup")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                
+                if remainingInSubGoal > 0 && remainingInSubGoal <= 10 {
+                    Button(action: { addCount(remainingInSubGoal) }) {
+                        Label("+\(remainingInSubGoal)", systemImage: "checkmark.circle")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.green)
+                }
+                
+                Button(action: { addCount(33) }) {
+                    Label("+33", systemImage: "arrow.right.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+    
+    private func addCount(_ count: Int) {
+        if experiments.isEnabled("focusMode") {
+            focusManager.addCount(count)
+        } else {
+            store.addCount(count)
+        }
+        SoundManager.shared.play(.tick)
     }
 }
