@@ -15,6 +15,8 @@ struct ContentView: View {
         case home = "Home"
         case easy = "Easy"
         case island = "Island"
+        case webcam = "Webcam"
+        case tracker = "Tracker"
         case focus = "Focus"
         case splitBatches = "Split"
         case fingers = "Fingers"
@@ -67,6 +69,14 @@ struct ContentView: View {
                     .environmentObject(theme)
                     .environmentObject(focusManager)
                     .environmentObject(experiments)
+            case .webcam:
+                WebcamFingerView()
+                    .environmentObject(store)
+                    .environmentObject(theme)
+                    .environmentObject(experiments)
+            case .tracker:
+                BugTrackerView()
+                    .environmentObject(theme)
             case .focus:
                 FocusModeView()
                     .environmentObject(store)
@@ -127,6 +137,8 @@ struct ContentView: View {
         case .home: return "house.fill"
         case .easy: return "hand.tap.fill"
         case .island: return "leaf.fill"
+        case .webcam: return "video.fill"
+        case .tracker: return "list.bullet.rectangle"
         case .focus: return "brain.head.profile"
         case .splitBatches: return "square.split.2x2"
         case .fingers: return "hand.raised.fill"

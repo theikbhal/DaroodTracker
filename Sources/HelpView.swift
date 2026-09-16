@@ -63,6 +63,24 @@ struct HelpView: View {
                     }
                     
                     HelpSectionCard(
+                        icon: "video.fill",
+                        title: "Webcam Finger Count",
+                        description: "Use camera to count with hand gestures",
+                        color: .indigo
+                    ) {
+                        selectedSection = .webcamFinger
+                    }
+                    
+                    HelpSectionCard(
+                        icon: "list.bullet.rectangle",
+                        title: "Project Tracker",
+                        description: "Track bugs, features, and improvements",
+                        color: .teal
+                    ) {
+                        selectedSection = .projectTracker
+                    }
+                    
+                    HelpSectionCard(
                         icon: "brain.head.profile",
                         title: "Focus Mode",
                         description: "Timer, micro-breaks, and idle detection",
@@ -168,6 +186,8 @@ enum HelpSection: String, CaseIterable, Identifiable {
     case easyCount
     case islandGarden
     case floatingButton
+    case webcamFinger
+    case projectTracker
     case focusMode
     case splitBatches
     case fingerCounting
@@ -187,6 +207,8 @@ enum HelpSection: String, CaseIterable, Identifiable {
         case .easyCount: return "Easy Count Mode"
         case .islandGarden: return "Island Garden Game"
         case .floatingButton: return "Floating Button"
+        case .webcamFinger: return "Webcam Finger Count"
+        case .projectTracker: return "Project Tracker"
         case .focusMode: return "Focus Mode"
         case .splitBatches: return "Split Batches (33/33/34)"
         case .fingerCounting: return "Finger Counting"
@@ -284,6 +306,10 @@ struct HelpDetailView: View {
             islandGardenContent
         case .floatingButton:
             floatingButtonContent
+        case .webcamFinger:
+            webcamFingerContent
+        case .projectTracker:
+            projectTrackerContent
         case .focusMode:
             focusModeContent
         case .splitBatches:
@@ -390,6 +416,54 @@ struct HelpDetailView: View {
             HelpTip(title: "Haptic Feedback", content: "You'll feel a vibration on each click")
             
             HelpTip(title: "Stays on Top", content: "The button always stays on top of other windows")
+        }
+    }
+    
+    var webcamFingerContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What is Webcam Finger Count?", content: "Use your webcam to count darood with hand gestures")
+            
+            HelpTip(title: "When to Use", content: "Hands-free counting without touching the mouse or keyboard")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Webcam Finger Count")
+            
+            HelpTip(title: "Camera Access", content: "Grant camera permission when prompted")
+            
+            HelpTip(title: "How to Count", content: "Show your hand to the camera and open/close fingers")
+            
+            HelpTip(title: "Finger Detection", content: "The app detects when fingers open or close")
+            
+            HelpTip(title: "Visual Feedback", content: "See your hand and finger count in real-time")
+            
+            HelpTip(title: "Backup Buttons", content: "Use +1 and +10 buttons if camera doesn't work")
+            
+            HelpTip(title: "Best Position", content: "Keep hand 30-50cm from camera, well-lit")
+            
+            HelpTip(title: "Supported Gestures", content: "Open hand = show count, close fingers = count +1")
+        }
+    }
+    
+    var projectTrackerContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What is Project Tracker?", content: "Track bugs, features, improvements, and tasks")
+            
+            HelpTip(title: "When to Use", content: "Keep track of what needs to be done in the app")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Project Tracker")
+            
+            HelpTip(title: "Add Items", content: "Click 'Add Item' button to create new entries")
+            
+            HelpTip(title: "Item Types", content: "Bug (red), Feature (purple), Improvement (cyan), Task (yellow)")
+            
+            HelpTip(title: "Status", content: "Open, In Progress, Completed, Deferred")
+            
+            HelpTip(title: "Priority", content: "Low, Medium, High, Critical")
+            
+            HelpTip(title: "Filter Items", content: "Use filter chips to show specific types or statuses")
+            
+            HelpTip(title: "Search", content: "Search items by title or description")
+            
+            HelpTip(title: "Update Status", content: "Click an item to change its status or priority")
         }
     }
     

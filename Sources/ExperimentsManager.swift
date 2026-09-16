@@ -34,6 +34,8 @@ class ExperimentsManager: ObservableObject {
         Experiment(id: "easyCount", name: "Easy Count Mode", description: "Big +1 button for eyes-closed counting", defaultEnabled: false),
         Experiment(id: "islandGarden", name: "Island Garden Game", description: "Idle progression game with island", defaultEnabled: false),
         Experiment(id: "floatingButton", name: "Floating Button", description: "Floating +1 button for quick counting", defaultEnabled: false),
+        Experiment(id: "bugTracker", name: "Project Tracker", description: "Track bugs, features, and improvements", defaultEnabled: false),
+        Experiment(id: "webcamFinger", name: "Webcam Finger Count", description: "Use camera to count with hand gestures", defaultEnabled: false),
     ]
     
     init() {
