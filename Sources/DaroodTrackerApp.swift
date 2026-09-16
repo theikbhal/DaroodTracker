@@ -72,14 +72,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             .environmentObject(FocusSessionManager(store: store))
         
         popover.contentViewController = NSHostingController(rootView: contentView)
-        popover.behavior = .transient
+        popover.behavior = .applicationDefined
     }
     
     func setupEventMonitor() {
-        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            if let popover = self?.popover, popover.isShown {
-                popover.performClose(nil)
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            guard let self = self else { return }
+            let popover = self.popover
+            guard popover.isShown else { return }
+            
+            // Get the window that was clicked
+            if let window = event.window {
+                // Don't close if clicking inside the popover's window
+                if window == popover.contentViewController?.view.window {
+                    return
+                }
             }
+            
+            popover.performClose(nil)
         }
     }
     
