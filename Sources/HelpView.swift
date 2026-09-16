@@ -36,6 +36,42 @@ struct HelpView: View {
                     }
                     
                     HelpSectionCard(
+                        icon: "brain.head.profile",
+                        title: "Focus Mode",
+                        description: "Timer, micro-breaks, and idle detection",
+                        color: .blue
+                    ) {
+                        selectedSection = .focusMode
+                    }
+                    
+                    HelpSectionCard(
+                        icon: "square.split.2x2",
+                        title: "Split Batches (33/33/34)",
+                        description: "Break each 100 into 3 smaller goals",
+                        color: .orange
+                    ) {
+                        selectedSection = .splitBatches
+                    }
+                    
+                    HelpSectionCard(
+                        icon: "hand.raised.fill",
+                        title: "Finger Counting",
+                        description: "Count on your fingers for better focus",
+                        color: .green
+                    ) {
+                        selectedSection = .fingerCounting
+                    }
+                    
+                    HelpSectionCard(
+                        icon: "bell.badge.fill",
+                        title: "Smart Notifications",
+                        description: "Progress-aware reminders and alerts",
+                        color: .purple
+                    ) {
+                        selectedSection = .smartNotifications
+                    }
+                    
+                    HelpSectionCard(
                         icon: "target",
                         title: "Daily Routine",
                         description: "How to complete your daily 1100 target",
@@ -93,6 +129,10 @@ struct HelpView: View {
 
 enum HelpSection: String, CaseIterable, Identifiable {
     case gettingStarted
+    case focusMode
+    case splitBatches
+    case fingerCounting
+    case smartNotifications
     case dailyRoutine
     case progress
     case calendar
@@ -104,6 +144,10 @@ enum HelpSection: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .gettingStarted: return "Getting Started"
+        case .focusMode: return "Focus Mode"
+        case .splitBatches: return "Split Batches (33/33/34)"
+        case .fingerCounting: return "Finger Counting"
+        case .smartNotifications: return "Smart Notifications"
         case .dailyRoutine: return "Daily Routine"
         case .progress: return "Understanding Progress"
         case .calendar: return "Calendar Views"
@@ -190,6 +234,14 @@ struct HelpDetailView: View {
         switch section {
         case .gettingStarted:
             gettingStartedContent
+        case .focusMode:
+            focusModeContent
+        case .splitBatches:
+            splitBatchesContent
+        case .fingerCounting:
+            fingerCountingContent
+        case .smartNotifications:
+            smartNotificationsContent
         case .dailyRoutine:
             dailyRoutineContent
         case .progress:
@@ -210,6 +262,82 @@ struct HelpDetailView: View {
             HelpTip(title: "3. Track Progress", content: "Watch the circular progress ring fill up as you complete your daily target")
             HelpTip(title: "4. View Calendar", content: "Click 'Calendar' to see your daily, weekly, monthly, and yearly progress")
             HelpTip(title: "5. Stay Consistent", content: "Build streaks by completing your target every day before 6 PM")
+        }
+    }
+    
+    var focusModeContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What is Focus Mode?", content: "A timer-based tracking system that helps you stay on pace throughout the day")
+            
+            HelpTip(title: "Auto-Start", content: "Focus mode starts automatically when you open the app (toggle in Settings > Focus)")
+            
+            HelpTip(title: "Live Timer", content: "Shows elapsed time and your pace (darood per minute)")
+            
+            HelpTip(title: "Micro-Breaks", content: "After every 10 darood, a 10-second break appears with breathing animation. Take a deep breath!")
+            
+            HelpTip(title: "Batch Breaks", content: "After every 100 darood (1 batch), a 30-second break appears with stretch suggestions")
+            
+            HelpTip(title: "Idle Detection", content: "If you haven't counted for 2 minutes, a gentle reminder pops up")
+            
+            HelpTip(title: "Pace Tracking", content: "Shows if you're ahead, on track, or behind schedule for your daily goal")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Focus Mode Timer")
+        }
+    }
+    
+    var splitBatchesContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What is Split Batches?", content: "Break each 100-darood batch into 3 smaller goals: 33 + 33 + 34")
+            
+            HelpTip(title: "Why Split?", content: "Smaller goals feel less overwhelming and give you more frequent wins")
+            
+            HelpTip(title: "How it Works", content: "Each batch shows 3 progress bars. Tap +33 to add to the current sub-goal")
+            
+            HelpTip(title: "Visual Progress", content: "Each sub-goal turns green when complete, showing your micro-progress")
+            
+            HelpTip(title: "When to Use", content: "Enable when you need smaller, more manageable goals to stay motivated")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Split Batches (33/33/34)")
+        }
+    }
+    
+    var fingerCountingContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What is Finger Counting?", content: "A visual counting method using two hands with 5 fingers each")
+            
+            HelpTip(title: "When to Use", content: "Perfect for when you're less focused and want to count physically on your fingers")
+            
+            HelpTip(title: "How it Works", content: "Each hand shows 5 fingers. Tap +1 to fill one finger. After 10, move to the next set")
+            
+            HelpTip(title: "Structure", content: "1100 total → 11 batches → 10 sets per batch → 10 counts per set → 5 fingers per hand")
+            
+            HelpTip(title: "Visual Cues", content: "Fingers light up as you count. Current batch and set are highlighted")
+            
+            HelpTip(title: "Quick Add", content: "Use +1 for single counts, +5 for one hand, +10 for both hands")
+            
+            HelpTip(title: "Batch Progress", content: "See all 11 batches with mini set indicators showing your progress")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Finger Counting Mode")
+        }
+    }
+    
+    var smartNotificationsContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What are Smart Notifications?", content: "Progress-aware reminders that adapt to your counting pace")
+            
+            HelpTip(title: "Morning Reminder", content: "8 AM: Suggests starting with just 10 darood to build momentum")
+            
+            HelpTip(title: "Progress Checks", content: "Every 30 minutes: Shows exact pace with numbers (e.g., '150/1100 at 5/min')")
+            
+            HelpTip(title: "Idle Reminder", content: "After 2 minutes of no counting: Gentle nudge to get back on track")
+            
+            HelpTip(title: "Deadline Alerts", content: "4 PM: '2 hours left' | 5:30 PM: '30 min left!' | 6 PM: Deadline passed")
+            
+            HelpTip(title: "Goal Complete", content: "When you finish 1100: Celebration notification with 'Mashallah! 🎉'")
+            
+            HelpTip(title: "Notification Styles", content: "Choose Gentle, Moderate, or Silent in Settings > Focus > Notification Style")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Smart Notifications")
         }
     }
     
@@ -244,11 +372,13 @@ struct HelpDetailView: View {
     
     var settingsContent: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HelpTip(title: "Themes", content: "Choose from multiple color themes in Settings")
-            HelpTip(title: "Reminders", content: "Enable/disable daily reminders and set preferred time")
-            HelpTip(title: "Experiments", content: "Toggle features on/off in the Experiments section")
-            HelpTip(title: "Data Export", content: "Export your tracking data as JSON")
-            HelpTip(title: "Reset", content: "Reset today's count or all data")
+            HelpTip(title: "Themes", content: "Choose from multiple color themes in Settings > Themes")
+            HelpTip(title: "Reminders", content: "Enable/disable daily reminders and set preferred time in Settings > General")
+            HelpTip(title: "Experiments", content: "Toggle features on/off in Settings > Experiments")
+            HelpTip(title: "Data Export", content: "Export your tracking data as JSON, CSV, Markdown, or SQL in Settings > Data")
+            HelpTip(title: "Reset", content: "Reset today's count or all data in Settings > Data > Reset")
+            HelpTip(title: "Launch at Login", content: "Auto-start app when you log in (Settings > Startup > Launch at Login)")
+            HelpTip(title: "Dock Icon", content: "Show/hide app in dock (Settings > Startup > Show in Dock)")
         }
     }
     
@@ -259,6 +389,8 @@ struct HelpDetailView: View {
             HelpTip(title: "Q: Where is my data stored?", content: "All data is stored locally on your Mac using UserDefaults")
             HelpTip(title: "Q: How do I export my data?", content: "Go to Settings > Data > Export Data")
             HelpTip(title: "Q: Can I use this on multiple devices?", content: "Currently single-device only. iCloud sync is planned for future updates")
+            HelpTip(title: "Q: What's the difference between Focus Mode and regular counting?", content: "Focus Mode adds timer, pace tracking, micro-breaks, and idle detection")
+            HelpTip(title: "Q: Which counting mode should I use?", content: "Use Home for quick batch counting, Split for 33/33/34 goals, or Fingers for physical counting")
         }
     }
 }
