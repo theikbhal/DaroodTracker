@@ -12,7 +12,10 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "DaroodTracker",
-            path: "Sources"
+            path: "Sources",
+            resources: [
+                .process("Assets.xcassets")
+            ]
         )
     ]
 )
