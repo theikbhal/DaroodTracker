@@ -32,6 +32,7 @@ class ExperimentsManager: ObservableObject {
         Experiment(id: "segmentCounting", name: "Finger Segments Mode", description: "Count using finger segments (3 per finger)", defaultEnabled: false),
         Experiment(id: "buttonSounds", name: "Button Sounds", description: "Play sounds when clicking count buttons", defaultEnabled: true),
         Experiment(id: "easyCount", name: "Easy Count Mode", description: "Big +1 button for eyes-closed counting", defaultEnabled: false),
+        Experiment(id: "islandGarden", name: "Island Garden Game", description: "Idle progression game with island", defaultEnabled: false),
     ]
     
     init() {

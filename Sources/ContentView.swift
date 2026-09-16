@@ -14,6 +14,7 @@ struct ContentView: View {
     enum AppTab: String, CaseIterable {
         case home = "Home"
         case easy = "Easy"
+        case island = "Island"
         case focus = "Focus"
         case splitBatches = "Split"
         case fingers = "Fingers"
@@ -56,6 +57,12 @@ struct ContentView: View {
                 HomeView(selectedTab: $selectedTab)
             case .easy:
                 EasyCountView()
+                    .environmentObject(store)
+                    .environmentObject(theme)
+                    .environmentObject(focusManager)
+                    .environmentObject(experiments)
+            case .island:
+                IslandView()
                     .environmentObject(store)
                     .environmentObject(theme)
                     .environmentObject(focusManager)
@@ -119,6 +126,7 @@ struct ContentView: View {
         switch tab {
         case .home: return "house.fill"
         case .easy: return "hand.tap.fill"
+        case .island: return "leaf.fill"
         case .focus: return "brain.head.profile"
         case .splitBatches: return "square.split.2x2"
         case .fingers: return "hand.raised.fill"

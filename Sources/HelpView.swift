@@ -45,6 +45,15 @@ struct HelpView: View {
                     }
                     
                     HelpSectionCard(
+                        icon: "leaf.fill",
+                        title: "Island Garden Game",
+                        description: "Grow your island through counting",
+                        color: .green
+                    ) {
+                        selectedSection = .islandGarden
+                    }
+                    
+                    HelpSectionCard(
                         icon: "brain.head.profile",
                         title: "Focus Mode",
                         description: "Timer, micro-breaks, and idle detection",
@@ -148,6 +157,7 @@ struct HelpView: View {
 enum HelpSection: String, CaseIterable, Identifiable {
     case gettingStarted
     case easyCount
+    case islandGarden
     case focusMode
     case splitBatches
     case fingerCounting
@@ -165,6 +175,7 @@ enum HelpSection: String, CaseIterable, Identifiable {
         switch self {
         case .gettingStarted: return "Getting Started"
         case .easyCount: return "Easy Count Mode"
+        case .islandGarden: return "Island Garden Game"
         case .focusMode: return "Focus Mode"
         case .splitBatches: return "Split Batches (33/33/34)"
         case .fingerCounting: return "Finger Counting"
@@ -258,6 +269,8 @@ struct HelpDetailView: View {
             gettingStartedContent
         case .easyCount:
             easyCountContent
+        case .islandGarden:
+            islandGardenContent
         case .focusMode:
             focusModeContent
         case .splitBatches:
@@ -308,6 +321,36 @@ struct HelpDetailView: View {
             HelpTip(title: "Haptic Feedback", content: "You'll feel a vibration on each click for physical confirmation")
             
             HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Easy Count Mode")
+        }
+    }
+    
+    var islandGardenContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What is Island Garden?", content: "An idle progression game where your island grows as you count darood")
+            
+            HelpTip(title: "How it Works", content: "Your island goes through 7 stages as you count from 0 to 1100")
+            
+            HelpTip(title: "Stage 1: Empty Island (0)", content: "Start with an empty island waiting for your first count")
+            
+            HelpTip(title: "Stage 2: Prepared Soil (100)", content: "The soil is ready for planting after 100 darood")
+            
+            HelpTip(title: "Stage 3: Planted Seed (200)", content: "A seed has been planted and is ready to grow")
+            
+            HelpTip(title: "Stage 4: Growing Sprout (400)", content: "The seed is sprouting! Watch it grow")
+            
+            HelpTip(title: "Stage 5: Mighty Tree (600)", content: "A beautiful tree has grown on your island")
+            
+            HelpTip(title: "Stage 6: Blooming Flowers (800)", content: "Flowers are blooming on the tree!")
+            
+            HelpTip(title: "Stage 7: Ripe Fruits (1000)", content: "Fruits are ripening and ready for harvest")
+            
+            HelpTip(title: "Stage 8: Harvest Time! (1100)", content: "Collect your rewards! Celebration animation plays")
+            
+            HelpTip(title: "Visual Elements", content: "Animated sun, clouds, water waves, and island progression")
+            
+            HelpTip(title: "Sound Effects", content: "Special sounds play when you reach new stages")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Island Garden Game")
         }
     }
     
