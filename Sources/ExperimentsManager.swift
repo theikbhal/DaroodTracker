@@ -27,6 +27,7 @@ class ExperimentsManager: ObservableObject {
         Experiment(id: "microBreaks", name: "Micro-Break System", description: "10-second breaks after every 10 darood", defaultEnabled: true),
         Experiment(id: "launchAtLogin", name: "Launch at Login", description: "Auto-start app on computer restart", defaultEnabled: false),
         Experiment(id: "idleDetection", name: "Idle Detection", description: "Detect when you stop counting", defaultEnabled: true),
+        Experiment(id: "splitBatches", name: "Split Batches (33/33/34)", description: "Break each 100 into 3 sub-goals", defaultEnabled: false),
     ]
     
     init() {

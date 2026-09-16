@@ -12,6 +12,7 @@ struct MenuBarView: View {
     @State private var showHelp = false
     @State private var showProfile = false
     @State private var showSubGoals = false
+    @State private var showSplitBatches = false
     @State private var showResetConfirm = false
     
     var body: some View {
@@ -129,6 +130,7 @@ struct MenuBarView: View {
             
             // Bottom row - navigation buttons
             HStack(spacing: 6) {
+                NavButton(icon: "square.split.2x2", label: "Split") { showSplitBatches = true }
                 NavButton(icon: "calendar", label: "Day") { showCalendar = true }
                 NavButton(icon: "flame.fill", label: "Streaks") { showProfile = true }
                 NavButton(icon: "target", label: "Subgoals") { showSubGoals = true }
@@ -164,6 +166,13 @@ struct MenuBarView: View {
                 .environmentObject(store)
                 .environmentObject(subGoals)
                 .environmentObject(theme)
+                .environmentObject(experiments)
+        }
+        .sheet(isPresented: $showSplitBatches) {
+            SplitBatchView()
+                .environmentObject(store)
+                .environmentObject(theme)
+                .environmentObject(focusManager)
                 .environmentObject(experiments)
         }
         .alert("Reset Today?", isPresented: $showResetConfirm) {

@@ -14,6 +14,7 @@ struct ContentView: View {
     enum AppTab: String, CaseIterable {
         case home = "Home"
         case focus = "Focus"
+        case splitBatches = "Split"
         case calendar = "Calendar"
         case subgoals = "Subgoals"
         case profile = "Profile"
@@ -55,6 +56,12 @@ struct ContentView: View {
                     .environmentObject(store)
                     .environmentObject(theme)
                     .environmentObject(focusManager)
+            case .splitBatches:
+                SplitBatchView()
+                    .environmentObject(store)
+                    .environmentObject(theme)
+                    .environmentObject(focusManager)
+                    .environmentObject(experiments)
             case .calendar:
                 CalendarView()
                     .environmentObject(store)
@@ -91,6 +98,7 @@ struct ContentView: View {
         switch tab {
         case .home: return "house.fill"
         case .focus: return "brain.head.profile"
+        case .splitBatches: return "square.split.2x2"
         case .calendar: return "calendar"
         case .subgoals: return "target"
         case .profile: return "person.circle"
