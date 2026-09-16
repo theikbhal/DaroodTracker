@@ -29,6 +29,7 @@ class ExperimentsManager: ObservableObject {
         Experiment(id: "idleDetection", name: "Idle Detection", description: "Detect when you stop counting", defaultEnabled: true),
         Experiment(id: "splitBatches", name: "Split Batches (33/33/34)", description: "Break each 100 into 3 sub-goals", defaultEnabled: false),
         Experiment(id: "fingerCounting", name: "Finger Counting Mode", description: "Count on fingers instead of tasbih", defaultEnabled: false),
+        Experiment(id: "segmentCounting", name: "Finger Segments Mode", description: "Count using finger segments (3 per finger)", defaultEnabled: false),
     ]
     
     init() {

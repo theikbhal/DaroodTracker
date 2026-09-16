@@ -63,6 +63,15 @@ struct HelpView: View {
                     }
                     
                     HelpSectionCard(
+                        icon: "hand.raised.fingers.spread",
+                        title: "Finger Segments",
+                        description: "Count using finger segments (3 per finger)",
+                        color: .mint
+                    ) {
+                        selectedSection = .fingerSegments
+                    }
+                    
+                    HelpSectionCard(
                         icon: "bell.badge.fill",
                         title: "Smart Notifications",
                         description: "Progress-aware reminders and alerts",
@@ -132,6 +141,7 @@ enum HelpSection: String, CaseIterable, Identifiable {
     case focusMode
     case splitBatches
     case fingerCounting
+    case fingerSegments
     case smartNotifications
     case dailyRoutine
     case progress
@@ -147,6 +157,7 @@ enum HelpSection: String, CaseIterable, Identifiable {
         case .focusMode: return "Focus Mode"
         case .splitBatches: return "Split Batches (33/33/34)"
         case .fingerCounting: return "Finger Counting"
+        case .fingerSegments: return "Finger Segments"
         case .smartNotifications: return "Smart Notifications"
         case .dailyRoutine: return "Daily Routine"
         case .progress: return "Understanding Progress"
@@ -240,6 +251,8 @@ struct HelpDetailView: View {
             splitBatchesContent
         case .fingerCounting:
             fingerCountingContent
+        case .fingerSegments:
+            fingerSegmentsContent
         case .smartNotifications:
             smartNotificationsContent
         case .dailyRoutine:
@@ -318,6 +331,28 @@ struct HelpDetailView: View {
             HelpTip(title: "Batch Progress", content: "See all 11 batches with mini set indicators showing your progress")
             
             HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Finger Counting Mode")
+        }
+    }
+    
+    var fingerSegmentsContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HelpTip(title: "What is Finger Segments?", content: "Most detailed counting method using 3 segments per finger (15 per hand)")
+            
+            HelpTip(title: "When to Use", content: "Best for medium ADHD - gives you the most granular counting experience")
+            
+            HelpTip(title: "How it Works", content: "Each finger has 3 segments (phalanges). Count fills segments from base to tip")
+            
+            HelpTip(title: "Structure", content: "1100 → 11 batches → 3 sub-goals (33/33/34) → 2 hands per sub-goal → 15 segments per hand")
+            
+            HelpTip(title: "33 Sub-Goal", content: "Uses 2 full hands (15+15) + 3 segments on first hand = 33")
+            
+            HelpTip(title: "34 Sub-Goal", content: "Uses 2 full hands (15+15) + 4 segments on first hand = 34")
+            
+            HelpTip(title: "Visual Cues", content: "Segments light up green when complete. Current sub-goal is highlighted")
+            
+            HelpTip(title: "Quick Add", content: "Use +1 for single segment, +15 for one hand, +33 for one sub-goal")
+            
+            HelpTip(title: "How to Enable", content: "Go to Settings > Experiments > Finger Segments Mode")
         }
     }
     

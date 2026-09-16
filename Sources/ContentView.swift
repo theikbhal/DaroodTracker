@@ -16,6 +16,7 @@ struct ContentView: View {
         case focus = "Focus"
         case splitBatches = "Split"
         case fingers = "Fingers"
+        case segments = "Segments"
         case calendar = "Calendar"
         case subgoals = "Subgoals"
         case profile = "Profile"
@@ -69,6 +70,12 @@ struct ContentView: View {
                     .environmentObject(theme)
                     .environmentObject(focusManager)
                     .environmentObject(experiments)
+            case .segments:
+                SegmentCountView()
+                    .environmentObject(store)
+                    .environmentObject(theme)
+                    .environmentObject(focusManager)
+                    .environmentObject(experiments)
             case .calendar:
                 CalendarView()
                     .environmentObject(store)
@@ -107,6 +114,7 @@ struct ContentView: View {
         case .focus: return "brain.head.profile"
         case .splitBatches: return "square.split.2x2"
         case .fingers: return "hand.raised.fill"
+        case .segments: return "hand.raised.fingers.spread"
         case .calendar: return "calendar"
         case .subgoals: return "target"
         case .profile: return "person.circle"
