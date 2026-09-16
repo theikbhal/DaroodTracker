@@ -83,8 +83,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             
             // Get the window that was clicked
             if let window = event.window {
-                // Don't close if clicking inside the popover's window
+                // Don't close if clicking inside any of our app's windows
                 if window == popover.contentViewController?.view.window {
+                    return
+                }
+                // Also don't close if clicking in a sheet (like settings)
+                if window.sheetParent != nil {
+                    return
+                }
+                // Don't close if clicking in a window that belongs to our app
+                if window.windowController?.contentViewController != nil {
                     return
                 }
             }
